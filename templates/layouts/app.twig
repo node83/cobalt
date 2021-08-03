@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="csrf_token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+
+    <title>{{ config('app.name') }}</title>
+
+    {# Fonts #}
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" crossorigin rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@200;300;400;500&display=swap" rel="stylesheet">
+
+    {# Styles #}
+    <link href="{{ static('app.css') }}" rel="stylesheet">
+
+    {# Scripts #}
+    <script src="//unpkg.com/alpinejs" defer></script>
+
+    {# Favicon #}
+    {{ include("partials/favicon.twig") }}
+
+</head>
+<body class="antialiased bg-gray-800 flex flex-col font-sans h-screen">
+
+    {% block body %}
+
+        <nav class="bg-gray-300">
+            <div class="container mx-auto flex flex-row flex-none justify-between">
+                <div class="flex flex-row">
+                    <a href="{{ url_for('index') }}" class="font-medium p-3 text-gray-700">{{ config('app.name') }}</a>
+                    {% if current_user is defined %}
+                        <a href="{{ url_for('home') }}" class="hover:bg-gray-400 p-3 text-gray-700">Home</a>
+                    {% endif %}
+                </div>
+                <div class="flex flex-row">
+                    {% if current_user is defined %}
+                        <form action="{{ url_for('logout') }}" method="post">
+                            <button type="submit" class="hover:bg-gray-400 p-3 text-gray-700">Logout</button>
+                            {{ csrf_input() }}
+                        </form>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="hover:bg-gray-400 p-3 text-gray-700">Login</a>
+                        <a href="{{ url_for('register') }}" class="hover:bg-gray-400 p-3 text-gray-700">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+
+        <div class="flex flex-col flex-grow">
+            {% block content %}{% endblock %}
+        </div>
+
+    {% endblock %}
+
+</body>
+</html>
