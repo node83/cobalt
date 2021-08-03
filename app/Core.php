@@ -17,6 +17,7 @@ use League\Flysystem\Local\LocalFilesystemAdapter;
 use Monolog\Logger;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Respect\Validation\Factory;
 use RuntimeException;
 use Slim\App;
 use Slim\Error\Renderers\JsonErrorRenderer;
@@ -100,6 +101,12 @@ class Core
             (require $file)($app);
         }
         $container->set(RouteCollector::class, $app->getRouteCollector());
+
+        Factory::setDefaultInstance(
+            (new Factory())
+                ->withRuleNamespace('App\\Validation\\Rules')
+                ->withExceptionNamespace('App\\Validation\\Exceptions')
+        );
 
         return $app;
     }
