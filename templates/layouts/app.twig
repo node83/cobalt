@@ -23,11 +23,11 @@
     {{ include("partials/favicon.twig") }}
 
 </head>
-<body class="antialiased bg-gray-800 flex flex-col font-sans h-screen">
+<body class="antialiased bg-gray-100 flex flex-col font-sans h-screen">
 
     {% block body %}
 
-        <nav class="bg-gray-300">
+        <nav class="bg-white">
             <div class="container mx-auto flex flex-row flex-none justify-between">
                 <div class="flex flex-row">
                     <a href="{{ url_for('index') }}" class="font-medium p-3 text-gray-700">{{ config('app.name') }}</a>

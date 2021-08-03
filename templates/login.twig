@@ -6,6 +6,8 @@
     <div class="flex flex-grow items-center justify-center">
         <form method="post" class="max-w-prose bg-gray-200 rounded shadow-xl px-12 py-8 flex flex-col space-y-4">
 
+            <img src="{{ static('logo.png') }}" alt="{{ config('app.name') }}" class="w-20 h-20 block mx-auto">
+
             {% if form.error %}
                 <p class="bg-red-500 text-gray-100 p-3 rounded">
                     {{ form.error }}
