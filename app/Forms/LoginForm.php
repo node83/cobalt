@@ -8,9 +8,6 @@ use Respect\Validation\Validatable;
 use Respect\Validation\Validator;
 
 /**
- * Class LoginForm
- * @package App\Forms
- *
  * @property $username
  * @property $password
  */
