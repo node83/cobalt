@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-use App\Classes\Database;
+use App\Interfaces\AuthorizationProviderInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use JsonException;
 use Psr\Http\Message\ResponseInterface;
@@ -14,14 +14,14 @@ use Slim\Psr7\Factory\ResponseFactory;
 
 class BasicAuthMiddleware implements MiddlewareInterface
 {
-    protected Database $db;
+    protected AuthorizationProviderInterface $provider;
 
     /**
-     * @param Database $db
+     * @param AuthorizationProviderInterface $provider
      */
-    public function __construct(Database $db)
+    public function __construct(AuthorizationProviderInterface $provider)
     {
-        $this->db = $db;
+        $this->provider = $provider;
     }
 
     /**
@@ -38,8 +38,7 @@ class BasicAuthMiddleware implements MiddlewareInterface
                 ->withStatus(StatusCodeInterface::STATUS_BAD_REQUEST);
         }
 
-        $sql = 'SELECT * FROM `users` WHERE `username` = :user';
-        $user = $this->db->execute($sql, ['user' => $credentials->user])->fetch();
+        $user = $this->provider->getUser($credentials->user);
         if (!$user) {
             return $this->error('Authorization failed')->withStatus(StatusCodeInterface::STATUS_UNAUTHORIZED);
         }

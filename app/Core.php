@@ -6,6 +6,7 @@ namespace App;
 use App\Classes\Database;
 use App\Extensions\CoreExtension;
 use App\Extensions\CsrfExtension;
+use App\Providers\DatabaseAuthorizationProvider;
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Dotenv\Dotenv;
@@ -14,6 +15,7 @@ use Dotenv\Repository\RepositoryBuilder;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Monolog\Logger;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Slim\App;
@@ -54,6 +56,10 @@ class Core
 
             Database::class => static function () {
                 return new Database(self::config('db.dsn'), self::config('db.user'), self::config('db.password'));
+            },
+
+            DatabaseAuthorizationProvider::class => function (ContainerInterface $ci) {
+                return new DatabaseAuthorizationProvider($ci->get(Database::class));
             },
 
             LoggerInterface::class => static function () {

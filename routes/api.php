@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-use App\Classes\Database;
 use App\Core;
 use App\Middleware\BasicAuthMiddleware;
+use App\Providers\DatabaseAuthorizationProvider;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
 use Slim\Interfaces\RouteCollectorProxyInterface;
@@ -18,5 +18,5 @@ return static function (App $app) {
         $app->group('/v1', function (RouteCollectorProxyInterface $app) {
             // API endpoints
         });
-    })->add(new BasicAuthMiddleware(Core::get(Database::class)));
+    })->add(new BasicAuthMiddleware(Core::get(DatabaseAuthorizationProvider::class)));
 };
