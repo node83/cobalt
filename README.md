@@ -28,6 +28,12 @@ echo "CREATE DATABASE cobalt CHARSET utf8mb4;" | mysql
 
 Edit .env to suit adjusting the DB_xxx values
 
+Import the schema
+~~~
+cat schema.sql| mysql cobalt
+~~~
+
+And create the superuser account
 ~~~
 php cobalt.php make:superuser
 ~~~
