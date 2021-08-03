@@ -21,6 +21,7 @@ use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Routing\RouteCollector;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use function Sentry\init;
 
 class Core
 {
@@ -34,6 +35,10 @@ class Core
         Dotenv::create(RepositoryBuilder::createWithNoAdapters()
             ->addAdapter(EnvConstAdapter::class)
             ->immutable()->make(), $root)->load();
+
+        if ($dsn = self::env('SENTRY_DSN')) {
+            init(['dsn' => $dsn]);
+        }
 
         $builder = new ContainerBuilder();
         $builder->useAnnotations(true);
