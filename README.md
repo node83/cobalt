@@ -22,7 +22,6 @@ git clone ...
 composer install
 npm install
 php cobalt.php make:env
-php cobalt.php make:favicon assets/logo.png
 echo "CREATE DATABASE cobalt CHARSET utf8mb4;" | mysql
 ~~~
 
