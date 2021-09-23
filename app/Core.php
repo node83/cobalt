@@ -3,19 +3,11 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Classes\Database;
-use App\Extensions\CoreExtension;
-use App\Extensions\CsrfExtension;
-use App\Providers\DatabaseAuthorizationProvider;
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Dotenv\Dotenv;
 use Dotenv\Repository\Adapter\EnvConstAdapter;
 use Dotenv\Repository\RepositoryBuilder;
-use League\Flysystem\Filesystem;
-use League\Flysystem\Local\LocalFilesystemAdapter;
-use Monolog\Logger;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Respect\Validation\Factory;
 use RuntimeException;
@@ -49,40 +41,16 @@ class Core
             'config' => static function() use ($root) {
                 $items = [];
                 foreach (glob($root . '/config/*php') as $file) {
-                    /** @noinspection PhpIncludeInspection */
                     $items[basename($file, '.php')] = require $file;
                 }
                 return $items;
             },
 
-            Database::class => static function () {
-                return new Database(self::config('db.dsn'), self::config('db.user'), self::config('db.password'));
-            },
-
-            DatabaseAuthorizationProvider::class => function (ContainerInterface $ci) {
-                return new DatabaseAuthorizationProvider($ci->get(Database::class));
-            },
-
-            LoggerInterface::class => static function () {
-                return new Logger($_ENV['APP_NAME']);
-            },
-
-            Twig::class => static function () {
-                $instance = Twig::create(Core::path('templates'), [
-                    'cache' => false,
-                    'debug' => true,
-                    'strict_variables' => true,
-                ]);
-                $instance->getEnvironment()->addExtension(new CoreExtension());
-                $instance->getEnvironment()->addExtension(new CsrfExtension());
-
-                return $instance;
-            },
-
-            Filesystem::class => function () {
-                return new Filesystem(new LocalFilesystemAdapter(Core::path('storage')));
-            }
         ]);
+
+        foreach (glob($root . '/dependencies/*php') as $file) {
+            $builder->addDefinitions(require $file);
+        }
 
         $container = $builder->build();
         self::$app = $app = Bridge::create($container);
@@ -97,7 +65,6 @@ class Core
         $errorHandler->registerErrorRenderer('application/json', JsonErrorRenderer::class);
 
         foreach (glob($root . '/routes/*php') as $file) {
-            /** @noinspection PhpIncludeInspection */
             (require $file)($app);
         }
         $container->set(RouteCollector::class, $app->getRouteCollector());

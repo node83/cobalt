@@ -13,7 +13,6 @@ class CoreExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            // TODO map php_* to php functions ? risky!
             new TwigFunction('ceil', 'ceil'),
             new TwigFunction('floor', 'floor'),
 
@@ -36,7 +35,14 @@ class CoreExtension extends AbstractExtension
     #[Pure]
     public function staticFunction(string $file): string
     {
-        $path = Core::path() . '/public/static/' . ltrim($file, '/');
-        return '/static/' . ltrim($file, '/') . (file_exists($path) ? ('?v=' . filemtime($path)) : '');
+        $path = Core::path('public/static/' . ltrim($file, '/'));
+        if (file_exists($path)) {
+            $path = realpath($path);
+            if (str_starts_with($path, Core::path('public'))) {
+                return substr($path, strlen(Core::path('public')), strlen($path)) . '?v=' . filemtime($path);
+            }
+        }
+
+        return '/static/' . ltrim($file, '/');
     }
 }

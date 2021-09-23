@@ -21,7 +21,7 @@ class UserRepository extends AbstractRepository
      * @param string $password
      * @param string $email
      * @param bool $staff
-     * * @param bool $superuser
+     * @param bool $superuser
      * @return object|null
      */
     public function addUser(string $username, string $password, string $email, bool $staff = false,

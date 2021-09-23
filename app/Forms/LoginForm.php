@@ -6,6 +6,7 @@ namespace App\Forms;
 use Psr\Http\Message\ServerRequestInterface;
 use Respect\Validation\Validatable;
 use Respect\Validation\Validator;
+use Respect\Validation\Rules;
 
 /**
  * @property $username

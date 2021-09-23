@@ -11,6 +11,9 @@
 
   "require": {
     "php": "^8.0",
+    "ext-pdo": "*",
+    "ext-sodium": "*",
+
     "doctrine/annotations": "^1.13",
     "league/flysystem": "^2.2",
     "monolog/monolog": "^2.3",

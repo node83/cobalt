@@ -4,9 +4,7 @@
 {% block content %}
 
     <div class="flex flex-grow items-center justify-center">
-        <form method="post" class="max-w-prose bg-gray-200 rounded shadow-xl px-12 py-8 flex flex-col space-y-4">
-
-            <img src="{{ static('logo.png') }}" alt="{{ config('app.name') }}" class="w-20 h-20 block mx-auto">
+        <form method="post" class="bg-gray-50 border border-gray-200 rounded shadow-md px-12 py-8 flex flex-col space-y-4">
 
             {% if form.error %}
                 <p class="bg-red-500 text-gray-100 p-3 rounded">
@@ -14,7 +12,7 @@
                 </p>
             {% endif %}
 
-            <div class="flex flex-col space-y-1">
+            <div class="flex flex-col space-y-1 w-80">
                 <label for="username" class="font-medium text-gray-700">Username</label>
                 <input id="username" type="text" name="username" value="{{ form.username.value }}"
                        class="rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300" autofocus required>
@@ -23,11 +21,11 @@
                 {% endif %}
             </div>
 
-            <div class="flex flex-col space-y-1">
+            <div class="flex flex-col space-y-1 w-80">
                 <label for="password" class="font-medium text-gray-700">Password</label>
                 <div class="relative" x-data="{visible:false}">
                     <input id="password" type="password" name="password" x-ref="field"
-                           class="rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 relative" required>
+                           class="w-full rounded-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 relative" required>
                     <span class="absolute right-0 text-gray-800 cursor-pointer p-3" @click="visible=!visible;$refs.field.type=visible?'text':'password'">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" x-show="visible" x-cloak>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
