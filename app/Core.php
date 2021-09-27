@@ -3,6 +3,10 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Classes\Database;
+use App\Classes\Logger;
+use App\Classes\Storage;
+use App\Classes\View;
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Dotenv\Dotenv;
@@ -14,8 +18,9 @@ use RuntimeException;
 use Slim\App;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Routing\RouteCollector;
-use Slim\Views\Twig;
-use Slim\Views\TwigMiddleware;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Transport;
 use function Sentry\init;
 
 class Core
@@ -38,6 +43,9 @@ class Core
         $builder = new ContainerBuilder();
         $builder->useAnnotations(true);
         $builder->addDefinitions([
+            /**
+             * Config settings
+             */
             'config' => static function() use ($root) {
                 $items = [];
                 foreach (glob($root . '/config/*php') as $file) {
@@ -46,27 +54,56 @@ class Core
                 return $items;
             },
 
+            /**
+             * Lightweight PDO wrapper
+             */
+            Database::class => static function () {
+                return new Database(Core::config('db.dsn'), Core::config('db.user'), Core::config('db.password'));
+            },
+
+            /**
+             * Lightweight Filesystem wrapper
+             */
+            Storage::class => static function () {
+                return new Storage();
+            },
+
+            /**
+             * Lightweight Logger wrapper
+             */
+            LoggerInterface::class => static function () {
+                return Logger::createLogger(Core::config('app.name'));
+            },
+
+            /**
+             * Symfony mailer
+             */
+            MailerInterface::class => static function () {
+                return new Mailer(Transport::fromDsn(Core::config('mail.dsn')));
+            },
+
+            /**
+             * Lightweight Twig wrapper
+             */
+            View::class => static function () {
+                return new View(self::path('templates'));
+            }
         ]);
 
-        foreach (glob($root . '/dependencies/*php') as $file) {
-            $builder->addDefinitions(require $file);
-        }
+        $builder->addDefinitions(require Core::path('bootstrap/dependencies.php'));
 
         $container = $builder->build();
         self::$app = $app = Bridge::create($container);
 
         $app->addBodyParsingMiddleware();
         $app->addRoutingMiddleware();
-        $app->add(TwigMiddleware::createFromContainer($app, Twig::class));
 
         $errorMiddleware = $app->addErrorMiddleware(self::config('app.debug') ?? false, true, true,
             self::get(LoggerInterface::class));
         $errorHandler = $errorMiddleware->getDefaultErrorHandler();
         $errorHandler->registerErrorRenderer('application/json', JsonErrorRenderer::class);
 
-        foreach (glob($root . '/routes/*php') as $file) {
-            (require $file)($app);
-        }
+        (require Core::path('bootstrap/routes.php'))($app);
         $container->set(RouteCollector::class, $app->getRouteCollector());
 
         Factory::setDefaultInstance(
@@ -136,6 +173,10 @@ class Core
      */
     public static function get(string $id): mixed
     {
+        if (($id === 'app') || ($id === App::class)) {
+            return self::$app;
+        }
+
         $container = self::$app->getContainer();
 
         if (!$container) {

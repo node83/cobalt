@@ -18,19 +18,15 @@ framework, providing some common services such as Database
 ## Installation
 
 ~~~
-git clone ...
+git clone git@github.com:node83/cobalt.git
 composer install
 npm install
 php cobalt.php make:env
 echo "CREATE DATABASE cobalt CHARSET utf8mb4;" | mysql
+cat schema.sql| mysql cobalt
 ~~~
 
 Edit .env to suit adjusting the DB_xxx values
-
-Import the schema
-~~~
-cat schema.sql| mysql cobalt
-~~~
 
 And create the superuser account
 ~~~

@@ -26,6 +26,8 @@ class Database extends PDO
     }
 
     /**
+     * Execute the SQL and return the PDO statement object.
+     *
      * @param string $sql
      * @param array $context
      * @return PDOStatement

@@ -3,31 +3,31 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Classes\View;
 use DI\Annotation\Inject;
+use Exception;
 use Fig\Http\Message\StatusCodeInterface;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use ReflectionClass;
 use ReflectionMethod;
-use RuntimeException;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Routing\RouteContext;
-use Slim\Views\Twig;
 use Twig\Error\Error;
 
 abstract class AbstractController
 {
     /** @Inject */
-    protected Twig $twig;
+    protected View $view;
 
     /**
-     * @param RequestInterface $request
+     * @param ServerRequestInterface $request
      * @param string $route
      * @param array $data
      * @param array $params
      * @return ResponseInterface
      */
-    protected function redirect(RequestInterface $request, string $route, array $data = [],
+    protected function redirect(ServerRequestInterface $request, string $route, array $data = [],
                                 array $params = []): ResponseInterface
     {
         $routeParser = RouteContext::fromRequest($request)->getRouteParser();
@@ -38,12 +38,13 @@ abstract class AbstractController
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param ServerRequestInterface $request
      * @param string $template
      * @param array $context
      * @return ResponseInterface
+     * @throws Exception
      */
-    protected function render(ResponseInterface $response, string $template, array $context = []): ResponseInterface
+    protected function render(ServerRequestInterface $request, string $template, array $context = []): ResponseInterface
     {
         // Register @twig (function|filter) [name] extensions on the fly
         $class = new ReflectionClass($this);
@@ -56,7 +57,7 @@ abstract class AbstractController
                 $what = ucfirst(strtolower($matches[1]));
                 $twigClass = 'Twig' . $what;
                 $addMethod = 'add' . $what;
-                $this->twig->getEnvironment()->$addMethod(new $twigClass($name, [$this, $shortName]));
+                $this->view->getEnvironment()->$addMethod(new $twigClass($name, [$this, $shortName]));
             }
         }
 
@@ -67,10 +68,16 @@ abstract class AbstractController
         }
 
         try {
-            return $this->twig->render($response, $template, $context);
+            $responseFactory = new ResponseFactory();
+            $response = $responseFactory->createResponse();
+
+            $markup = $this->view->render($request, $template, $context);
+            $response->getBody()->write($markup);
+
+            return $response;
         }
         catch (Error $e) {
-            throw new RuntimeException($e->getMessage());
+            throw new Exception($e->getMessage());
         }
     }
 }

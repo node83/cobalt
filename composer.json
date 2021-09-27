@@ -13,7 +13,6 @@
     "php": "^8.0",
     "ext-pdo": "*",
     "ext-sodium": "*",
-
     "doctrine/annotations": "^1.13",
     "league/flysystem": "^2.2",
     "monolog/monolog": "^2.3",
@@ -21,10 +20,11 @@
     "respect/validation": "^2.2",
     "sentry/sdk": "^3.1",
     "slim/psr7": "^1.4",
-    "slim/twig-view": "^3.2",
     "symfony/console": "^5.3",
+    "symfony/mailer": "^5.3",
     "symfony/process": "^5.3",
     "symfony/var-dumper": "^5.3",
+    "twig/twig": "^3.3",
     "vlucas/phpdotenv": "^5.3"
   },
   "require-dev": {

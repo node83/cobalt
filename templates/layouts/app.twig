@@ -39,7 +39,7 @@
                     {% if current_user is defined %}
                         <form action="{{ url_for('logout') }}" method="post">
                             <button type="submit" class="hover:bg-gray-400 p-3 text-gray-700">Logout</button>
-                            {{ csrf_input() }}
+                            {% include('partials/csrf_token.twig') %}
                         </form>
                     {% else %}
                         <a href="{{ url_for('login') }}" class="hover:bg-gray-400 p-3 text-gray-700">Login</a>

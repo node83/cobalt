@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Forms\LoginForm;
 use App\Repositories\UserRepository;
 use DI\Annotation\Inject;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -16,10 +17,10 @@ class LoginController extends AbstractController
 
     /**
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
      * @return ResponseInterface
+     * @throws Exception
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         $form = new LoginForm();
         if ($request->getMethod() === 'POST') {
@@ -35,6 +36,6 @@ class LoginController extends AbstractController
             }
         }
 
-        return $this->render($response, 'login.twig', ['form' => $form]);
+        return $this->render($request, 'login.twig', ['form' => $form]);
     }
 }

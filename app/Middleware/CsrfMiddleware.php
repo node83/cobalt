@@ -18,7 +18,7 @@ class CsrfMiddleware implements MiddlewareInterface
      * @param string $fieldName
      * @param string $sessionVar
      */
-    public function __construct(string $fieldName = 'csrf_token', string $sessionVar = 'csrf')
+    public function __construct(string $fieldName = 'csrf_token', string $sessionVar = 'csrf_token')
     {
         $this->fieldName = $fieldName;
         $this->sessionVar = $sessionVar;

@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Forms\RegistrationForm;
 use App\Repositories\UserRepository;
 use DI\Annotation\Inject;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -16,10 +17,10 @@ class RegisterController extends AbstractController
 
     /**
      * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
      * @return ResponseInterface
+     * @throws Exception
      */
-    public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    public function __invoke(ServerRequestInterface $request): ResponseInterface
     {
         $form = new RegistrationForm();
         if ($request->getMethod() === 'POST') {
@@ -36,6 +37,6 @@ class RegisterController extends AbstractController
             }
         }
 
-        return $this->render($response, 'register.twig', ['form' => $form]);
+        return $this->render($request, 'register.twig', ['form' => $form]);
     }
 }

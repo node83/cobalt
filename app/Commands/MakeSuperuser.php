@@ -26,7 +26,7 @@ class MakeSuperuser extends Command
     protected function configure(): void
     {
         $this
-            ->setDescription('List all registered routes')
+            ->setDescription('Create a new superuser account')
             ->addOption('username', null, InputOption::VALUE_OPTIONAL, 'Username')
             ->addOption('email', null, InputOption::VALUE_OPTIONAL, 'Email');
     }
