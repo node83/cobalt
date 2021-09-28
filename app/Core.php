@@ -3,24 +3,20 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Classes\Database;
-use App\Classes\Logger;
-use App\Classes\Storage;
-use App\Classes\View;
+use App\Classes\{Database, Logger, Storage, View};
 use DI\Bridge\Slim\Bridge;
 use DI\ContainerBuilder;
 use Dotenv\Dotenv;
 use Dotenv\Repository\Adapter\EnvConstAdapter;
 use Dotenv\Repository\RepositoryBuilder;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Respect\Validation\Factory;
 use RuntimeException;
 use Slim\App;
 use Slim\Error\Renderers\JsonErrorRenderer;
 use Slim\Routing\RouteCollector;
-use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mailer\{Mailer, MailerInterface, Transport};
 use function Sentry\init;
 
 class Core
@@ -28,6 +24,19 @@ class Core
     private static App $app;
     private static string $root;
 
+    /**
+     * Create a new Slim App instance with a core set of dependencies:
+     * + Database (PDO/MySQL)
+     * + Logger (Monolog)
+     * + Storage (FlySystem)
+     * + View (Twig)
+     * + Mailer (Symfony)
+     * Extra dependencies can be loaded from /bootstrap/dependencies.php
+     *
+     * @param string $root
+     * @return App
+     * @throws Exception
+     */
     public static function create(string $root): App
     {
         self::$root = $root;
@@ -43,9 +52,6 @@ class Core
         $builder = new ContainerBuilder();
         $builder->useAnnotations(true);
         $builder->addDefinitions([
-            /**
-             * Config settings
-             */
             'config' => static function() use ($root) {
                 $items = [];
                 foreach (glob($root . '/config/*php') as $file) {
@@ -53,43 +59,22 @@ class Core
                 }
                 return $items;
             },
-
-            /**
-             * Lightweight PDO wrapper
-             */
             Database::class => static function () {
                 return new Database(Core::config('db.dsn'), Core::config('db.user'), Core::config('db.password'));
             },
-
-            /**
-             * Lightweight Filesystem wrapper
-             */
             Storage::class => static function () {
                 return new Storage();
             },
-
-            /**
-             * Lightweight Logger wrapper
-             */
             LoggerInterface::class => static function () {
                 return Logger::createLogger(Core::config('app.name'));
             },
-
-            /**
-             * Symfony mailer
-             */
             MailerInterface::class => static function () {
                 return new Mailer(Transport::fromDsn(Core::config('mail.dsn')));
             },
-
-            /**
-             * Lightweight Twig wrapper
-             */
             View::class => static function () {
                 return new View(self::path('templates'));
             }
         ]);
-
         $builder->addDefinitions(require Core::path('bootstrap/dependencies.php'));
 
         $container = $builder->build();
