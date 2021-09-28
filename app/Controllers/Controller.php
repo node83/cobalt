@@ -15,7 +15,7 @@ use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Routing\RouteContext;
 use Twig\Error\Error;
 
-abstract class AbstractController
+abstract class Controller
 {
     /** @Inject */
     protected View $view;

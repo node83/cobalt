@@ -7,7 +7,7 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class IndexController extends AbstractController
+class IndexController extends Controller
 {
     /**
      * @param ServerRequestInterface $request

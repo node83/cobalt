@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-class UserRepository extends AbstractRepository
+class UserRepository extends Repository
 {
     /**
      * @param string $username

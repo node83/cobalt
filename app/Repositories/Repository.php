@@ -6,7 +6,7 @@ namespace App\Repositories;
 use App\Classes\Database;
 use DI\Annotation\Inject;
 
-class AbstractRepository
+class Repository
 {
     /** @Inject */
     protected Database $db;

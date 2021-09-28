@@ -10,7 +10,7 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class LoginController extends AbstractController
+class LoginController extends Controller
 {
     /** @Inject */
     protected UserRepository $users;

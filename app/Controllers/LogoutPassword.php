@@ -6,7 +6,7 @@ namespace App\Controllers;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class LogoutPassword extends AbstractController
+class LogoutPassword extends Controller
 {
     /**
      * @param ServerRequestInterface $request
