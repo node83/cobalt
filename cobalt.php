@@ -2,6 +2,7 @@
 <?php
 declare(strict_types=1);
 
+use App\Core;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\CommandLoader\FactoryCommandLoader;
 
@@ -32,9 +33,8 @@ function getCommands(string $path, string $namespace): array
     return $items;
 }
 
-/*
- * main()
- */
+Core::create(__DIR__);
+
 $app = new Application();
 $app->setName('Cobalt CLI Tool');
 $app->setVersion('1.0.0');

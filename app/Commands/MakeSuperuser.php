@@ -3,9 +3,8 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use App\Classes\Database;
 use App\Core;
-use PDOException;
+use App\Repositories\UserRepository;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Validator as v;
 use Symfony\Component\Console\Command\Command;
@@ -20,6 +19,8 @@ class MakeSuperuser extends Command
     /** @var string */
     protected static $defaultName = 'make:superuser';
 
+    private UserRepository $users;
+
     /**
      * @return void
      */
@@ -29,6 +30,8 @@ class MakeSuperuser extends Command
             ->setDescription('Create a new superuser account')
             ->addOption('username', null, InputOption::VALUE_OPTIONAL, 'Username')
             ->addOption('email', null, InputOption::VALUE_OPTIONAL, 'Email');
+
+        $this->users = Core::get(UserRepository::class);
     }
 
     /**
@@ -66,31 +69,7 @@ class MakeSuperuser extends Command
             return Command::FAILURE;
         }
 
-        $slim = Core::create(dirname(__DIR__, 2));
-        $container = $slim->getContainer();
-        if (!$container) {
-            $io = new SymfonyStyle($input, $output);
-            $io->block('Application container is not available', null, 'fg=white;bg=red', ' ', true);
-            return Command::FAILURE;
-        }
-
-        /** @var Database $db */
-        $db = $container->get(Database::class);
-        $sql = <<<SQL
-            INSERT INTO `users` (`username`, `email`, `password`, `staff`, `superuser`)
-            VALUES (:username, :email, :password, 1, 1)
-SQL;
-        try {
-            $db->execute($sql, [
-                'username' => strtolower($username),
-                'email' => strtolower($email),
-                'password' => password_hash($password, PASSWORD_DEFAULT),
-            ]);
-        } catch (PDOException $e) {
-            $io = new SymfonyStyle($input, $output);
-            $io->block($e->getMessage(), null, 'fg=white;bg=red', ' ', true);
-            return Command::FAILURE;
-        }
+        $this->users->addUser(strtolower($username), $password, $email);
 
         return Command::SUCCESS;
     }

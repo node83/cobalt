@@ -39,13 +39,12 @@ class Routes extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $slim = Core::create(dirname(__DIR__, 2));
         $methodFilter = $input->getOption('method');
         $uriFilter = $input->getOption('uri');
         $nameFilter = $input->getOption('name');
         $routeList = [];
 
-        foreach ($slim->getRouteCollector()->getRoutes() as $route) {
+        foreach (Core::get('app')->getRouteCollector()->getRoutes() as $route) {
             $routeMethods = $route->getMethods();
             $routePattern = $route->getPattern();
             $routeName = $route->getName() ?? '';
