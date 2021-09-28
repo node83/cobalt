@@ -4,10 +4,7 @@ namespace App\Classes;
 
 use App\Core;
 use Monolog\Handler\HandlerInterface;
-use Monolog\Processor\MemoryPeakUsageProcessor;
-use Monolog\Processor\ProcessIdProcessor;
-use Monolog\Processor\ProcessorInterface;
-use Monolog\Processor\TagProcessor;
+use Monolog\Processor\{MemoryPeakUsageProcessor, ProcessIdProcessor, ProcessorInterface, TagProcessor};
 use Psr\Log\LoggerInterface;
 use Monolog\Logger as Monolog;
 use ReflectionClass;
@@ -27,6 +24,8 @@ class Logger
     }
 
     /**
+     * Return an array of handlers depending on how LOG_STACK is defined.
+     *
      * @return HandlerInterface[]
      */
     private static function createHandlers(): array
@@ -48,6 +47,8 @@ class Logger
     }
 
     /**
+     * Return an array of log processors.
+     *
      * @return ProcessorInterface[]
      */
     private static function createProcessors(): array

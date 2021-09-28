@@ -4,15 +4,12 @@ namespace App\Classes;
 
 use App\Core;
 use Exception;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
-use Slim\App;
+use Psr\Http\Message\{ServerRequestInterface, UriInterface};
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Routing\RouteContext;
 use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
+use Twig\Error\Error;
+use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFunction;
 
@@ -24,6 +21,8 @@ class View
     private string $basePath;
 
     /**
+     * View Constructor.
+     *
      * @param string $templatePath
      */
     public function __construct(string $templatePath)
@@ -36,7 +35,8 @@ class View
             'auto_reload' => null,
         ]);
 
-        // Slim\Twig-View functions
+        $this->twig->addExtension(new DebugExtension());
+
         $this->twig->addFunction(new TwigFunction('url_for', [$this, 'urlFor']));
         $this->twig->addFunction(new TwigFunction('full_url_for', [$this, 'fullUrlFor']));
         $this->twig->addFunction(new TwigFunction('is_current_url', [$this, 'isCurrentUrl']));
@@ -44,14 +44,13 @@ class View
         $this->twig->addFunction(new TwigFunction('get_uri', [$this, 'getUri']));
         $this->twig->addFunction(new TwigFunction('base_path', [$this, 'basePath']));
 
-        //
+        $this->twig->addFunction(new TwigFunction('query_for', [$this, 'queryFor']));
         $this->twig->addFunction(new TwigFunction('csrf_token', [$this, 'csrfToken']));
+        $this->twig->addFunction(new TwigFunction('page_list', [$this, 'pageList']));
 
-        $this->twig->addFunction(new TwigFunction('config', [$this, 'config']));
-        $this->twig->addFunction(new TwigFunction('env', [$this, 'env']));
+        $this->twig->addFunction(new TwigFunction('config', [$this, 'coreConfig']));
+        $this->twig->addFunction(new TwigFunction('env', [$this, 'coreEnv']));
         $this->twig->addFunction(new TwigFunction('static', [$this, 'staticFunction']));
-
-        // TODO add extensions
     }
 
     /**
@@ -71,14 +70,10 @@ class View
      * @param string $template
      * @param array|object $context
      * @return string
-     * @throws LoaderError
-     * @throws RuntimeError
-     * @throws SyntaxError
+     * @throws Error
      */
     public function render(ServerRequestInterface $request, string $template, array|object $context = []): string
     {
-        /** @var App $app */
-
         $this->routeParser = RouteContext::fromRequest($request)->getRouteParser();
         $this->basePath = Core::get('app')->getBasePath();
         $this->uri = $request->getUri();
@@ -159,6 +154,34 @@ class View
     }
 
     /**
+     * @param array $params
+     * @return string
+     */
+    public function queryFor(array $params = []): string
+    {
+        $result = [];
+        foreach (explode('&', $_SERVER['QUERY_STRING'] ?? '') as $item) {
+            [$key, $value] = explode('=', $item);
+            $result[$key] = $value;
+        }
+
+        foreach ($params as $key => $value) {
+            $result[$key] = $value;
+        }
+
+        $result = array_filter($result, function ($value) {
+            return ($value ?? '') !== '';
+        });
+
+        $final = [];
+        foreach ($result as $key => $value) {
+            $final[] = $key . '=' . $value;
+        }
+
+        return count($result) ? ('?' . implode('&', $final)) : '';
+    }
+
+    /**
      * @return string
      * @throws Exception
      */
@@ -177,11 +200,29 @@ class View
     }
 
     /**
+     * @param int $page
+     * @param int $pages
+     * @return int[]
+     */
+    public function pageList(int $page, int $pages): array
+    {
+        $list = array_unique(array_filter([1, 2, $page - 2, $page - 1, $page, $page + 1, $page + 2, $pages - 1, $pages],
+            function ($page) use ($pages) {
+                return $page > 0 && $page <= $pages;
+            }
+        ));
+
+        sort($list);
+
+        return $list;
+    }
+
+    /**
      * @param string $key
      * @param mixed|null $default
      * @return mixed
      */
-    public function config(string $key, mixed $default = null): mixed
+    public function coreConfig(string $key, mixed $default = null): mixed
     {
         return Core::config($key, $default);
     }
@@ -191,7 +232,7 @@ class View
      * @param mixed|null $default
      * @return mixed
      */
-    public function env(string $key, mixed $default = null): mixed
+    public function coreEnv(string $key, mixed $default = null): mixed
     {
         return $_ENV[$key] ?? $default;
     }

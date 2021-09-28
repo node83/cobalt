@@ -10,6 +10,8 @@ use PDOStatement;
 class Database extends PDO
 {
     /**
+     * Database Constructor (Sets up some overrides for MySQL, but otherwise the same as PDO's constructor)
+     *
      * @param string $dsn
      * @param string|null $user
      * @param string|null $password
